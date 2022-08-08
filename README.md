@@ -27,9 +27,18 @@ Introduction
 COMMAND:
 sqlmap -u [URL] --dbs
 
+strSQL = "SELECT * FROM users WHERE(name = '"+userName+"') and (pw = '"+passWord+"');"
+userName = "1' OR '1'='1"
+passWord = "1' OR '1'='1"
+strSQL = "SELECT * FROM users WHERE(name = '1' OR '1'='1') and (pw = '1' OR '1'='1');"
+==> strSQL = "SELECT * FROM users;" (因為後面的結果都是 True，所以就直接會變這樣)
+
+
 預防方式建議:
 1. 使用正規化的方式驗證過濾輸入值，可以將 SQL 指令過濾掉，或將單引號變換為雙引號
 2. 在不需要使用到更新、插入資料時，資料庫以 view 的方式處理供使用者查詢資料
 3. 將伺服器與資料庫部署在不同的機器上
 
+參考:
+https://www.slideshare.net/hugolu/sql-injection-61608454
 
