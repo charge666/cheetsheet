@@ -42,3 +42,29 @@ strSQL = "SELECT * FROM users WHERE(name = '1' OR '1'='1') and (pw = '1' OR '1'=
 參考:
 https://www.slideshare.net/hugolu/sql-injection-61608454
 
+###Tryhackme -Basic Penetration
+1. Find the services exposed by the machine
+nmap -A ip : 可以把這台機器上有開啟的 Port 掃出來
+2. Find the hidden directory on the web server
+Use dirsearch 
+Command line: python3 dirsearch.py -u ip 
+dirsearch 需要特別安裝，還沒探索完全部功能
+3. Brute Force username
+Use enum4linux
+Command line: enum4linux ip -a
+Kali 內建，看起來可以 enumeration 很多資訊出來
+4. Brute Force password
+Use hydra
+Command line: hydra -l username -P wordlist ssh://ip
+hydra 在 kali 內建，目前不知道為什麼是爆 ssh 不是 smb
+5. How to get the other people in the machine and enter it
+剛剛利用 hydra 有爆出了 jan 的密碼，ssh 登入 jan 的帳號，進入到此機器後開始機器漫遊，就會看到有另一個使用者 kay，但 hydra 沒有爆出他的密碼，但他有一個 pass.bak 的檔案看起來很香，可是卻沒有權限看這個檔案，因為這個檔案只有 kay 和 root 可以看，但現在登入的使用者是 jan 
+但是有另一個 .ssh 檔案夾，等等去查裡面到底有些什麼，反正有個 id_rsa 好像是密鑰什麼的，可以利用這個登入 kay 帳號，前提要先把這個檔案夾 copy 一份到本地端，利用 scp 指令
+Command line : ssh kay@ip -i id_rsa 
+很不幸的是 id_rsa 這個檔案也需要密碼，必須 crack 出這個密碼
+Use Johntheripper 進行 ssh key 密碼破解
+將 ssh key 轉成 john 格式
+Command line : python ssh2john.py id_rsa > john_hash
+上一部是將 ssh key 轉換成 john 可以看懂的形式
+Command line : john john_hash --wordlists=rockyou.txt
+做完這一步，會拿到 kay 的 id_rsa 密碼，在利用同樣方式登入即可拿到最後一題的答案
